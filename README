@@ -1,0 +1,116 @@
+Daniel Yu
+CSE 341
+The Alset Enterprise
+
+~~~~~~~~Compilation/Running and Directory Information~~~~~~~~
+(Compiling) A Makefile exists to compile the code called "Makefile". Simply type "make" when in the ddy221 directory to recompile the code. 
+
+(Running) Run "java -jar ddy221.jar" while in the ddy221 directory to run the program.
+
+(Information) Java source code is in ddy221, along with the executable, Makefile, Manifest, and java jar file. The directory Triggers_Functions contains PLSQL code for a function and triggers for your ease of access. The directory DataGeneration contains my SQL for creating the tables, creating the initial data, and destroying data/tables.
+
+~~~~Important Notes/Assumptions~~~~
+1. Choosing a "Back" option will you to the previous menu. Choosing a "Quit" option will exit the program.
+2. We are in an alternate timeline where it is also 2018, but a humanity has already spread among the stars and a company called Alset sells vehicles. In other words, the data that involves dates has dates from pre 2019 while new tuples added to the database through the interfaces will take the current date.
+3. When a customer buys a vehicle and the transaction succeeds, Alset's fancy AI auto sends the vehicle to the requested service location. Look at #13 of "Future Considerations" for more details.
+4. Discount has to be set by the onsite employee who inspects the vehicle before a purchase of a used vehicle or a customer selling back a vehicle can occur. Ideally, the car sensors would handle updating the discount automatically based on the condition of the vehicle, but unfortunately, I have no communication with such sensors, so manual inspection from the onsite employee will have to do. For this reason, customers can only buy a used vehicle in stock at a location by going to that location to talk to an onsite employee, since they will have to reinspect the used vehicle to determine its value and how much to sell it for. It is the responsibility of the onsite employee to ensure the discount/total_price of the vehicles in their used inventory is kept up to date.
+5. Due to the automatic feature of the emails sent to the customer when a vehicle needs maintenance, especially the way that the condition of the vehicle is managed by onboard sensors, the interfaces in this code do not handle this behavior or sending emails. There is a trigger to "send" an email when a vehicle's condition worsens, but there is currently no way with this code to worsen said condition.
+6. The cost of making a vehicle is currently set to be 80% of the default selling cost. It can be set to anything.
+7. When faced with a menu, the numbers to the left of the options are the inputs allowed to choose their corresponding option.
+8. All number input is scanned to ensure it is a number. All string input involved in a SQL statement call is checked for apostrophes, adding another apostrophe when encountered since '' is the proper way to print an single apostrophe in Oracle.
+9. Adding a vehicle to a location's display is handled by when a vehicle physically arrives at a location for display, the onsite employee adds it. The onsite employee can also remove from the display.
+10. I did not have time to implement recalls for service locations since I decided to focus on other aspects of the enterprise. Handling recalls would also likely require revision of the relational design.
+
+~~~~~~~~Extra Features Implemented~~~~~~~~~
+1) The passwords for the customers are hashed using a md5 hash. The get_hash code can be found in ~/Triggers_Functions/GET_HASH.sql. The hash uses the email, password, and a preset salt to create a hash that is then stored by the database as the password. Whenever a customer wants to login, they have to input their email and password, which is then rehashed and compared to what is in the database. If it matches, then the customer inputted the right information and are logged in. The good thing about this is that the actual password string is never saved in the database, so if the database was compromised, the hackers would not have access to the password. Unless they undid the hash... but good luck with that.
+2) I implemented a buyback option, where customers can sell back their Alset vehicles to the enterprise at a service location. This is handled by the onsite employee, since they have to first inspect the used vehicle to determine its value.
+3) I have several triggers to handle certain behaviors of the database system. For example, when a new transaction_buy tuple is created (which occurs when an onsite employee buysback a vehicle from a customer), the trigger UPDATE_VEC_TRANSACTION_BUY updates the vehicle's info to show that it now has no owner.
+4) I also implemented a relation called transactions_make, which is basically all the transactions Alset made to create each vehicle. The information in this relation can be used to see how much money Alset has spent to create vehicles (which one of the things the analytics employee does).
+5) I implemented the ability for customers to have more than one payment card on record.
+
+~~~~~~~~~~Login Information~~~~~~~~~~
+1. Customers
+	A)	Email: richboy@gmail.com
+		Password: imbatman
+	B) 	Email: ddy221@lehigh.edu
+		Password: password
+	C) 	Email: bobbyduddy@gmail.com
+		Password: bobiscool
+	D) 	Email: kitty@hotmail.com
+		Password: catwoman
+	E) 	Email: bestbuddy@gmail.com
+		Password: notbatman
+	F) 	Email: givememoney@yahoo.com
+		Password: willcode4money
+	G) 	Email: takemymoney@yahoo.com
+		Password: imrich
+	H) 	Email: mrfreeze@gmail.com
+		Password: itscold
+	I) 	Email: zapdragon@hotmail.com
+		Password: Electrifying
+	J) 	Email: fastestman@gmail.com
+		Password: imtheFlash
+	K)  Email: sarahsmith@gmail.com
+		Password: password
+2. Analytics Employee
+	a) User_id: analytics
+	b) Password: *blank string, just press enter when prompted for password*
+3. Onsite Employee
+	a) User_id: onsite
+	b) Password: *blank string, just press enter when prompted for password*
+
+~~~~~~Suggested Customer "First Experience"~~~~~~
+1) Login as customer A, Bruce Wayne, with email "richboy@gmail.com" and password "imbatman". 
+2) Head into Account(1).
+	a) Head into Personal Information(1). Here you can view some of Bruce's personal information, and can even edit your info including name, email, password, address, and cards! Feel free to mess around here. However, changing the email/password will be up to you to remember! (You can look up the email in Oracle, but you cannot easily look up the password.)
+	b) Options 2, 3, and 4 can be choosen to see what Bruce Wayne has on record for each corresponding option! Bruce has at least one tuple for each.
+3) Head into Buy New Vehicle(2). Let's get a new ride!
+	a) Choose a vehicle model (M, U, S, K) and options setup. Completely up to you!
+	b) Choose a card and location. Feel free to try the different options such as using preferred, saved, etc. options or creating/choosing new ones. 
+	c) Make the purchase. If everything went well, the program will choose a currently existing new vehicle in stock of your specification or, if none currently exist, create a new vehicle. The vehicle will now be ready for pickup. Number 13 of Future Considerations addresses why I set pickup to occur immediately.
+4) Head into Location Information(3)
+	a) Choose a location by choosing one of the options. The interface will direct you.
+	b) Once you choose a location, you can look at that location's hours and used vehicle inventory. This is also where you set your Preferred Location.
+5) Feel free to mess around with Bruce Wayne's account and buy as many vehicles as you want. He can afford to buy a lot of vehicles.
+6) I suggest to also create a new customer so you can check out behaviors of the interface for listing data and adding new data with a fresh account. Customer B, Daniel Yu, also has a decent amount of data with Alset.
+
+~~~~Suggested Analytics Employee "First Experience"~~~~
+1) Login using the userid "analytics" and the password "". The password is purposefully blank.
+2) Head into Aggregated Information(1). Here you can view various information about the Alset Enterprise including overall info and data specific to a certain model.
+3) Head into List Transactions(2). Here you can view the sell, buyback, and make transactions that Alset has on record. The records are listed by date for convenience.
+
+~~~~~Suggested Onsite Employee "First Experience"~~~~~
+1) Login using the userid "onsite" and the password "". The password is purposefully blank.
+2) Choose a location on the planet "Venus".
+	a) Head into Customer Interactions(1) and check the customer "Bruce Wayne" with email "richboy@gmail.com"
+	b) Now, you can explore all these options to handle the pickup of a vehicle, repairing a vehicle, buying a used vehicle from this location, buying back a vehicle from a customer, and evaluating/discounting one of the customer's vehicle.
+3) You can repeat steps 2a and 2b except using a different planet such as "Earth" and see how several of the actions, like pickup, repair, and evaluation may not work due to mismatched vehicle model/location when compared with the supported models of vehicles at this location. You can also try with different customers. Customer B, Daniel Yu, also has a decent amount of data to play with.
+4) Repeat step 1, and choose a location from a planet of your choosing (Earth, Venus, Moon).
+	a) Head into Location Management(2)
+	b) Now, you can explore options here relating to this location. You can set the discount/evaluate the vehicles in the used inventory at this location, change this location's open/close hours, add a vehicle to display(when one gets delivered to the location, the deliverer would provide the vehicle id), or remove a vehicle from display. 
+	c) For adding a vehicle to display, vehicle ids which should work unless you've changed something the database through a purchase include for model S(1, 6, 7, 33), model M(15, 18), model K(13), and model U(20, 21). If adding that vehicle is invalid in any way (i.e. already owned by a customer, isn't new, model isn't supported by this location), the addition will be rejected.
+
+~~~~~~~~Future Considerations~~~~~~~~
+Notes: I do not know all the best practices of handling financial information, such as card information and I do not know what sort of information is stored for a transaction. My lack of information may lead me to make some incorrect assumptions and decisions. For future edits, I would do more research on the best practices for different parts of the enterprise and implement them to the best of my ability.
+Also, these considerations may clarify some assumptions I made about the enterprise/database system. I know there is a lot, so no need to read all of them. I just kept thinking of more things I could improve with more knowledge/time.
+
+1. Handle situations where a location goes out of commission, a vehicle is destroyed, a customer wants to remove a card from their account, or a customer deletes their account. The way my database is currently set up, locations and vehicles are not allowed to be destroyed, since certain transactions reference them. Transactions reference cards, so once a card is used, it can't be deleted from the system currently. There is a similar situation with customers who cannot delete their accounts. A future feature would be to implement a system, perhaps just a flag attribute or separate entity sets that holds info about whether that location, vehicle, or customer is still usable/active. That way, we could keep our records of transactions without disallowing representing abandoned locations or destroyed vehicles to the customers/employees.
+2. Add employee accounts to strengthen security and to track which employee changed/accessed what in the database. Will also cause need for significant modification of how employeeLogin() is currently handled. Would need to create a similar setup for employeeLogin() as there is currently for customers minus the new account feature.
+3. Create a better way of representing time/date. This database currently uses the java.sql.Date object, which only supports year/month/day. It would be better to also keep track of the time in hours, minutes and seconds. This could be done by splitting the date attribute into many attributes where ever it is used to represent each part of a date (year, month, day, hour, minute, second).
+4. Add more triggers/functions to handle certain features of the database. For example, certain search features, such as searching for a location, could be made into a function.
+5. Confirmation email for email address for both creating a new account and updating the email address. Also send emails for other sort of notifications. (Like sales! Or when a pickup is ready!)
+6. Edit java code to display more information about a vehicle's options when printing out information about a list of vehicles.
+7. Upgrade from using the deprecated package DBMS_OBFUSCATION_TOOLKIT to using the supported package DBMS_CRYPTO to hash the passwords. Currently unable to because I do not have permission to execute DBMS_CRYPTO.
+8. Add more restrictions on what is allowed to be a password (for security reasons), such has certain length requirements, does not contain name, etc. In other words, data cleanse more inputs (also for addresses, payment card info, etc.)
+9. Add more data, such as different years of each model in order to make interactions more interesting/realistic.
+10. Allow editing of payment_card info, instead of only allowing removal of current cards or adding completely new cards. 
+11. Currently, if a card is deleted, and it is the only object in the database associated with it's address, the address tuple remains in the database. A future change I would make would be either to remove these tuples when a card is deleted or run through the address relation periodically (like every night) and remove the address tuples not in use elsewhere in the database.
+12. Currently, inputs for address and card_information are not cleansed checked for validity. A future consideration would be to check each input for validity. For example, the card_number could be checked to be exactly 16 digits or the expiration date could be checked of the valid format.
+13. Currently, vehicles immediately become available for pickup since we are not actually creating any vehicles and there is no travel time for these imaginary vehicles, so in an actual enterprise, the service location would insert the tuple into the location_pickup relation when it receives a vehicle ready for pickup. The service location would also notify the customer. In addition, the current program does not account for if the insertion of the pickup tuple fails when the transaction_sell occurs. In the real world, this wouldn't happen since pickup would be handled differently based on the physical location of the vehicle and communication resulting from that.
+14. Add a "forgot password" function where customers can go through a process to recover their account in case they forget/lose their password. The process would likely involve sending an email to their account, resetting the password and giving it to the customer. The customer could then login and change their password.
+15. Currently, when creating a new vehicle, the vehicle tuple and its corresponding vehicle_options_prices tuple are created one right after the other. However, even though its unlikely, if the system crashes inbetween these two tuple creations and the vehicle tuple committed, this program does not handle then removing said vehicle since it is already created and the make transaction has also supposedly occured. Therefore, I would handle this by scanning through the vehicle relation every night or so, checking to make sure each tuple has a corresponding vehicle_options_prices tuple, handling the situation appropiately.
+16. Handle recalls. For this version of the database, I did not implement handling recalls for vehicles. It would consist of checking each affected tuple in the vehicle relation, sending an email/reminder to the customer/owner if there is one, otherwise handle the vehicle internally.
+17. Flesh out the Analytics Employee interface more to include more features and options for selecting specific info. For example, I could add a feature to list info about the enterprise and transactions made within the past x days/months/years. 
+18. Add metadata to my database/relations to track traffic that each location receives, such as how often customers vist and what they do there. This data can then be used by the analytics employee to find out more useful information about the enterprise.
+19. Add more descriptive and helpful error messages for when things go wrong.
+20. Now that I have done the project, I can see where some of my queries are inefficient with my current relational design. For the future, I would work towards reworking the relations and java code to increase the efficiency of the database queries.

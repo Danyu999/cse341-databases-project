@@ -1,0 +1,2 @@
+Main-class: Interfaces
+Class-Path: ojdbc7.jar
